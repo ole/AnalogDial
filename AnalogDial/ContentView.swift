@@ -1,17 +1,16 @@
-//
-//  ContentView.swift
-//  AnalogDial
-//
-//  Created by Ole Begemann on 21.06.19.
-//  Copyright © 2019 Ole Begemann. All rights reserved.
-//
-
 import SwiftUI
 
-struct ContentView : View {
-    var body: some View {
-        Text("Hello World")
-    }
+struct ContentView: View {
+  var body: some View {
+    AnalogDial()
+      .padding()
+  }
+}
+
+struct AnalogDial: View {
+  var body: some View {
+    Circle()
+  }
 }
 
 #if DEBUG
