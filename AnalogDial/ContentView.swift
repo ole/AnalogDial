@@ -54,15 +54,15 @@ struct AnalogDial: View {
 
       // Tick marks and labels
       ForEach(minorTicks.identified(by: \.self)) { value in
-        TickMark(angle: self.polarAngle(for: value), style: .minor, color: self.tickMarkColor)
+        TickMark(angle: self.angle(for: value), style: .minor, color: self.tickMarkColor)
       }
       ForEach(majorTicks.identified(by: \.self)) { value in
-        TickMark(angle: self.polarAngle(for: value), style: .major, color: self.tickMarkColor)
-        TickMarkLabel(number: value, angle: self.polarAngle(for: value), color: self.textColor)
+        TickMark(angle: self.angle(for: value), style: .major, color: self.tickMarkColor)
+        TickMarkLabel(number: value, angle: self.angle(for: value), color: self.textColor)
       }
 
       // Hand
-      Hand(angle: polarAngle(for: currentValue), color: handColor)
+      Hand(angle: angle(for: currentValue), color: handColor)
         .animation(Animation.fluidSpring())
     }
       .aspectRatio(1, contentMode: .fit)
@@ -74,7 +74,7 @@ struct AnalogDial: View {
       .accessibility(value: Text("\(currentValue)"))
   }
 
-  private func polarAngle(for value: Double) -> Angle {
+  private func angle(for value: Double) -> Angle {
     let normalized = interpolate(value, min: minValue, max: maxValue)
     return startAngle + (endAngle - startAngle) * normalized
   }
