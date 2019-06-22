@@ -155,7 +155,7 @@ struct AnalogDial: View {
     }()
   }
 
-  struct Hand: View, Animatable {
+  struct Hand: View {
     var angle: Angle
     var color: Color
 
@@ -172,11 +172,6 @@ struct AnalogDial: View {
             .fill(self.color)
         }
       }
-    }
-
-    var animatableData: Angle {
-      get { return angle }
-      set { angle = newValue }
     }
 
     static let scaleFactorX: CGFloat = 0.5
