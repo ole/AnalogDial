@@ -25,7 +25,7 @@ struct AnalogDial: View {
   let textColor = Color.black
   let tickMarkColor = Color.black
   let handColor = Color.red
-  let strokeColor = Color.black
+  let borderColor = Color.black
 
   let majorTicks: [Double]
   let minorTicks: [Double]
@@ -50,7 +50,7 @@ struct AnalogDial: View {
       Circle()
         .fill(backgroundColor)
       Circle()
-        .stroke(strokeColor)
+        .stroke(borderColor)
 
       // Tick marks and labels
       ForEach(minorTicks.identified(by: \.self)) { value in
