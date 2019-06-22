@@ -6,7 +6,6 @@ struct ContentView: View {
   var body: some View {
     VStack {
       AnalogDial($store.state.speed)
-      Text(verbatim: "\(store.state.speed)")
       Spacer()
     }
       .padding()
