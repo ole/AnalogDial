@@ -1,8 +1,21 @@
 import UIKit
 
+let store = Store()
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+  var timer: Timer? = nil
+
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { t in
+      let speedChange: Double
+      switch store.state.speed {
+      case ...20: speedChange = Double.random(in: -1...3)
+      case 40...: speedChange = Double.random(in: -3...1)
+      default: speedChange = Double.random(in: -2...2)
+      }
+      store.state.speed = max(0, min(store.state.speed + speedChange, 60))
+    }
     return true
   }
 
