@@ -3,23 +3,51 @@ import SwiftUI
 struct ContentView: View {
   @ObjectBinding var store: Store
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass
+  @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass
 
   var body: some View {
     VStack {
-      if horizontalSizeClass == .regular {
-        HStack(spacing: 40) {
-          AnalogDial($store.state.speed)
+      if horizontalSizeClass == .compact && verticalSizeClass == .compact {
+        AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
+          .accentColor(.red)
+      } else if horizontalSizeClass == .compact && verticalSizeClass == .regular {
+        VStack(spacing: 40) {
+          AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
             .environment(\.colorScheme, .light)
             .accentColor(.red)
-          AnalogDial($store.state.speed)
+          AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
             .environment(\.colorScheme, .dark)
             .accentColor(.orange)
         }
-      } else {
-        AnalogDial($store.state.speed)
-          .accentColor(.red)
+      } else if horizontalSizeClass == .regular && verticalSizeClass == .compact {
+        HStack(spacing: 40) {
+          AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
+            .environment(\.colorScheme, .light)
+            .accentColor(.red)
+          AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
+            .environment(\.colorScheme, .dark)
+            .accentColor(.orange)
+        }
+      } else if horizontalSizeClass == .regular && verticalSizeClass == .regular {
+        VStack(spacing: 40) {
+          HStack(spacing: 40) {
+            AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
+              .environment(\.colorScheme, .light)
+              .accentColor(.red)
+            AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
+              .environment(\.colorScheme, .dark)
+              .accentColor(.orange)
+          }
+          HStack(spacing: 40) {
+            AnalogDial($store.state.speed, maxValue: 60, majorStep: 20, subdivisions: 10, startAngle: .degrees(-45), endAngle: .degrees(45))
+              .environment(\.colorScheme, .dark)
+              .accentColor(.yellow)
+            AnalogDial($store.state.speed, maxValue: 50, majorStep: 10, subdivisions: 10, startAngle: .degrees(-180), endAngle: .degrees(0))
+              .environment(\.colorScheme, .light)
+              .accentColor(.blue)
+          }
+        }
       }
-      Spacer()
     }
       .padding()
   }
@@ -38,18 +66,39 @@ struct ContentView: View {
 ///       `.           ,'
 ///          `───────'`
 ///
+/// Use the `.accentColor(_:)` modifier to set the color of the dial's hand.
 struct AnalogDial: View {
   @Binding var currentValue: Double
   @Environment(\.colorScheme) var colorScheme: ColorScheme
 
+  init(_ currentValue: Binding<Double>, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
+    self.$currentValue = currentValue
+    self.minValue = minValue
+    self.maxValue = maxValue
+    self.majorStep = majorStep
+    self.subdivisions = subdivisions
+    self.startAngle = startAngle
+    self.endAngle = endAngle
+
+    // Compute the dial values where we must draw major and minor tick marks and labels.
+    let majorTicks = Array(stride(from: minValue, through: maxValue, by: majorStep))
+    let minorTicks = majorTicks.dropLast().flatMap { value -> [Double] in
+      guard subdivisions > 0 else { return [] }
+      let stepPerSubdivision = majorStep / Double(subdivisions)
+      return Array(stride(from: value + stepPerSubdivision, to: value + majorStep, by: stepPerSubdivision))
+    }
+    self.majorTicks = majorTicks
+    self.minorTicks = minorTicks
+  }
+
   /// The minimum value in the dial's range
-  let minValue: Double = 0
+  let minValue: Double
   /// The maximum value in the dial's range
-  let maxValue: Double = 60
+  let maxValue: Double
   /// Step size between major tick marks
-  let majorStep: Double = 10
+  let majorStep: Double
   /// Number of subdivisions (minor ticks) between major tick marks.
-  let subdivisions = 4
+  let subdivisions: Int
 
   /// The angle where the dial scale should start.
   ///
@@ -64,34 +113,20 @@ struct AnalogDial: View {
   /// - 45º is the bottom-right "corner" of the dial.
   /// - 90º is straight down from the view's center, as is -270º. If you set startAngle to -270º and endAngle to 90º, the
   ///   dial would span the full circle.
-  let startAngle = Angle(degrees: -225)
+  ///
+  /// - Seealso: `endAngle`
+  let startAngle: Angle
 
   /// The angle where the dial scale should end.
   ///
   /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
-  /// The `startAngle` must be smaller than `endAngle`. Use a negative angle to go counterclockwise from east.
-  /// E.g. An angle of -180º is "west" (negative x axis) and -225º is "south-west".
+  /// The `endAngle` must be greater than `startAngle`. Use a negative angle to go counterclockwise from east.
   ///
-  /// Use the `.accentColor(_:)` modifier to set the color of the dial's hand.
-  let endAngle = Angle(degrees: 45)
+  /// - Seealso: `startAngle`
+  let endAngle: Angle
 
   private let majorTicks: [Double]
   private let minorTicks: [Double]
-
-  init(_ value: Binding<Double>) {
-    $currentValue = value
-    // Compute the dial values where we must draw major and minor tick marks and labels.
-    let majorTicks = Array(stride(from: minValue, through: maxValue, by: majorStep))
-    let subdivisions = self.subdivisions
-    let majorStep = self.majorStep
-    let minorTicks = majorTicks.dropLast().flatMap { value -> [Double] in
-      guard subdivisions > 0 else { return [] }
-      let stepPerSubdivision = majorStep / Double(subdivisions)
-      return Array(stride(from: value + stepPerSubdivision, to: value + majorStep, by: stepPerSubdivision))
-    }
-    self.majorTicks = majorTicks
-    self.minorTicks = minorTicks
-  }
 
   var body: some View {
     ZStack {
