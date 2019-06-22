@@ -45,29 +45,33 @@ struct AnalogDial: View {
   }
 
   var body: some View {
-    VStack {
-      ZStack {
-        // Background circle
-        Circle()
-          .fill(backgroundColor)
-        Circle()
-          .stroke(strokeColor)
+    ZStack {
+      // Background circle
+      Circle()
+        .fill(backgroundColor)
+      Circle()
+        .stroke(strokeColor)
 
-        // Tick marks and labels
-        ForEach(minorTicks.identified(by: \.self)) { value in
-          TickMark(angle: self.polarAngle(for: value), style: .minor, color: self.tickMarkColor)
-        }
-        ForEach(majorTicks.identified(by: \.self)) { value in
-          TickMark(angle: self.polarAngle(for: value), style: .major, color: self.tickMarkColor)
-          TickMarkLabel(number: value, angle: self.polarAngle(for: value), color: self.textColor)
-        }
-
-        // Hand
-        Hand(angle: polarAngle(for: currentValue), color: handColor)
-          .animation(Animation.fluidSpring())
+      // Tick marks and labels
+      ForEach(minorTicks.identified(by: \.self)) { value in
+        TickMark(angle: self.polarAngle(for: value), style: .minor, color: self.tickMarkColor)
       }
-        .aspectRatio(1, contentMode: .fit)
+      ForEach(majorTicks.identified(by: \.self)) { value in
+        TickMark(angle: self.polarAngle(for: value), style: .major, color: self.tickMarkColor)
+        TickMarkLabel(number: value, angle: self.polarAngle(for: value), color: self.textColor)
+      }
+
+      // Hand
+      Hand(angle: polarAngle(for: currentValue), color: handColor)
+        .animation(Animation.fluidSpring())
     }
+      .aspectRatio(1, contentMode: .fit)
+      .accessibilityElement()
+      .accessibility(visibility: .element)
+      .accessibility(addTraits: [.isSummaryElement ,.updatesFrequently])
+      // TODO: .accessibility(label:) doesn't seem to have any effect in Xcode 11 beta 2
+      .accessibility(label: Text("Dial"))
+      .accessibility(value: Text("\(currentValue)"))
   }
 
   private func polarAngle(for value: Double) -> Angle {
