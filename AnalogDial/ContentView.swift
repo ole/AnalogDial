@@ -21,11 +21,11 @@ struct AnalogDial: View {
   let subdivisions = 4
   let startAngle = Angle(degrees: -220)
   let endAngle = Angle(degrees: 40)
-  let backgroundColor = Color.white
-  let textColor = Color.black
-  let tickMarkColor = Color.black
-  let handColor = Color.red
-  let borderColor = Color.black
+  let backgroundColor = Color.black
+  let textColor = Color.white
+  let tickMarkColor = Color.white
+  let handColor = Color.orange
+  let borderColor = Color.clear
 
   let majorTicks: [Double]
   let minorTicks: [Double]
