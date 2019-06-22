@@ -27,6 +27,7 @@ struct ContentView: View {
 ///
 struct AnalogDial: View {
   @Binding var currentValue: Double
+  @Environment(\.colorScheme) var colorScheme: ColorScheme
 
   /// The minimum value in the dial's range
   let minValue: Double = 0
@@ -57,17 +58,9 @@ struct AnalogDial: View {
   /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
   /// The `startAngle` must be smaller than `endAngle`. Use a negative angle to go counterclockwise from east.
   /// E.g. An angle of -180º is "west" (negative x axis) and -225º is "south-west".
+  ///
+  /// Use the `.accentColor(_:)` modifier to set the color of the dial's hand.
   let endAngle = Angle(degrees: 45)
-
-  // TODO: These should probably be SwiftUI modifiers (or styles?).
-  /// The dial's background color.
-  let backgroundColor = Color.black
-  /// The color of the dial border. Use `Color.clear` to not draw a border.
-  let borderColor = Color.clear
-  let textColor = Color.white
-  let tickMarkColor = Color.white
-  /// The color of the dial's hand.
-  let handColor = Color.orange
 
   private let majorTicks: [Double]
   private let minorTicks: [Double]
@@ -105,7 +98,7 @@ struct AnalogDial: View {
       }
 
       // Hand
-      Hand(angle: angle(for: currentValue), color: handColor)
+      Hand(angle: angle(for: currentValue))
         .animation(Animation.fluidSpring())
     }
       .aspectRatio(1, contentMode: .fit)
@@ -123,6 +116,41 @@ struct AnalogDial: View {
     return startAngle + (endAngle - startAngle) * normalized
   }
 
+  // MARK: - Colors
+  // TODO: These should probably be SwiftUI modifiers (or styles?).
+  /// The dial's background color.
+  var backgroundColor: Color {
+    switch colorScheme {
+    case .light: return .white
+    case .dark: return .black
+    @unknown default: return .white
+    }
+  }
+
+  /// The color of the dial border. Use `Color.clear` to not draw a border.
+  var borderColor: Color {
+    switch colorScheme {
+    case .light: return .black
+    case .dark: return .clear
+    @unknown default: return .black
+    }
+  }
+
+  var textColor: Color {
+    switch colorScheme {
+    case .light: return .black
+    case .dark: return .white
+    @unknown default: return .black
+    }
+  }
+
+  var tickMarkColor: Color {
+    return textColor
+  }
+}
+
+// MARK: - TickMark
+extension AnalogDial {
   struct TickMark: View {
     enum Style {
       case major
@@ -164,7 +192,10 @@ struct AnalogDial: View {
       }
     }
   }
+}
 
+// MARK: - TickMarkLabel
+extension AnalogDial {
   struct TickMarkLabel: View {
     var number: Double
     var angle: Angle
@@ -175,6 +206,7 @@ struct AnalogDial: View {
         Text("\(NSNumber(value: self.number), formatter: Self.labelFormatter)")
           .font(Font.system(size: self.labelFontSize(for: geometryProxy.size), design: .rounded)
             .monospacedDigit()
+            .bold()
           )
           .foregroundColor(self.color)
           .position(self.labelPosition(for: geometryProxy.size))
@@ -209,22 +241,24 @@ struct AnalogDial: View {
       return f
     }()
   }
+}
 
+// MARK: - Hand
+extension AnalogDial {
   struct Hand: View {
     var angle: Angle
-    var color: Color
 
     var body: some View {
       GeometryReader { geometryProxy in
         ZStack {
           Circle()
             .scale(Self.knobScaleFactor)
-            .fill(self.color)
+            .fill(Color.accentColor)
           Rectangle()
             .scale(x: Self.scaleFactorX, y: Self.scaleFactorY)
             .offset(x: geometryProxy.size.width * Self.scaleFactorX * -(Self.pivotPosition - 0.5), y: 0)
             .rotation(self.angle)
-            .fill(self.color)
+            .fill(Color.accentColor)
         }
       }
     }
@@ -239,6 +273,7 @@ struct AnalogDial: View {
   }
 }
 
+// MARK: - Previews
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {
   static let store = Store()
@@ -254,6 +289,7 @@ func interpolate(_ value: Double, min: Double, max: Double) -> Double {
   (value - min) / (max - min)
 }
 
+// MARK: - Geometry helpers
 /// A polar coordinate (angle and radius).
 ///
 /// Note: The angle of a polar coordinate (`phi`) goes counterclockwise, i.e. 0º is "east" and 90º is "north".
