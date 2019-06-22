@@ -177,14 +177,24 @@ struct AnalogDial: View {
             .monospacedDigit()
           )
           .foregroundColor(self.color)
-          .position(x: geometryProxy.size.width / 2, y: geometryProxy.size.height / 2)
-          .offset(CGSize(self.labelCoordinate(for: geometryProxy.size).cartesian))
+          .position(self.labelPosition(for: geometryProxy.size))
       }
     }
 
-    private func labelCoordinate(for viewSize: CGSize) -> Polar {
+    /// Computes the center point for the text label based on `self.angle`.
+    private func labelPosition(for viewSize: CGSize) -> CGPoint {
       let radius = viewSize.width / 2 * 0.75
-      return Polar(r: radius, phi: angle)
+      let polar = Polar(r: radius, phi: angle)
+      // Because we're using GeometryReader, it seems that the Text is normally positioned in the
+      // top-left corner instead of the center. Because of this, we not only have to compute the
+      // correct polar coordinate based on `angle` (which assumes the center as the origin),
+      // we also have to translate the origin to the center point.
+      // TODO: Understand the positioning. I tried wrapping the Text in a ZStack, but it didn't
+      // change anything.
+      let translationFromTopLeftToCenter = CGAffineTransform(translationX: viewSize.width / 2, y: viewSize.height / 2)
+      return polar
+        .cartesian
+        .applying(translationFromTopLeftToCenter)
     }
 
     private func labelFontSize(for viewSize: CGSize) -> Length {
@@ -258,11 +268,5 @@ struct Polar {
     // y = r * sin(phi)
     let p = phi.radians
     return CGPoint(x: r * CGFloat(cos(p)), y: r * CGFloat(sin(p)))
-  }
-}
-
-extension CGSize {
-  init(_ point: CGPoint) {
-    self.init(width: point.x, height: point.y)
   }
 }
