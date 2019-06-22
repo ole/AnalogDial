@@ -2,10 +2,23 @@ import SwiftUI
 
 struct ContentView: View {
   @ObjectBinding var store: Store
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass
 
   var body: some View {
     VStack {
-      AnalogDial($store.state.speed)
+      if horizontalSizeClass == .regular {
+        HStack(spacing: 40) {
+          AnalogDial($store.state.speed)
+            .environment(\.colorScheme, .light)
+            .accentColor(.red)
+          AnalogDial($store.state.speed)
+            .environment(\.colorScheme, .dark)
+            .accentColor(.orange)
+        }
+      } else {
+        AnalogDial($store.state.speed)
+          .accentColor(.red)
+      }
       Spacer()
     }
       .padding()
