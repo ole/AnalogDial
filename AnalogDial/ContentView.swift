@@ -198,6 +198,7 @@ struct AnalogDial: View {
     }
 
     private func labelFontSize(for viewSize: CGSize) -> Length {
+      // TODO: Dynamic font size based on `EnvironmentValues.sizeCategory`.
       return viewSize.width / 14
     }
 
