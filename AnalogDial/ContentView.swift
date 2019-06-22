@@ -19,6 +19,7 @@ struct AnalogDial: View {
   let minValue: Double = 0
   let maxValue: Double = 60
   let majorStep: Double = 10
+  let subdivisions = 4
   let startAngle = Angle(degrees: -220)
   let endAngle = Angle(degrees: 40)
   let backgroundColor = Color.white
@@ -27,11 +28,21 @@ struct AnalogDial: View {
   let handColor = Color.red
   let strokeColor = Color.black
 
-  let majorLabels: [Double]
+  let majorTicks: [Double]
+  let minorTicks: [Double]
 
   init(_ value: Binding<Double>) {
     $currentValue = value
-    majorLabels = Array(stride(from: minValue, through: maxValue, by: majorStep))
+    let majorTicks = Array(stride(from: minValue, through: maxValue, by: majorStep))
+    let subdivisions = self.subdivisions
+    let majorStep = self.majorStep
+    let minorTicks = majorTicks.dropLast().flatMap { value -> [Double] in
+      guard subdivisions > 0 else { return [] }
+      let stepPerSubdivision = majorStep / Double(subdivisions)
+      return Array(stride(from: value + stepPerSubdivision, to: value + majorStep, by: stepPerSubdivision))
+    }
+    self.majorTicks = majorTicks
+    self.minorTicks = minorTicks
   }
 
   var body: some View {
@@ -44,9 +55,12 @@ struct AnalogDial: View {
           .stroke(strokeColor)
 
         // Tick marks and labels
-        ForEach(majorLabels.identified(by: \.self)) { labelValue in
-          TickMark(angle: self.polarAngle(for: labelValue), color: self.tickMarkColor)
-          TickMarkLabel(number: labelValue, angle: self.polarAngle(for: labelValue), color: self.textColor)
+        ForEach(minorTicks.identified(by: \.self)) { value in
+          TickMark(angle: self.polarAngle(for: value), style: .minor, color: self.tickMarkColor)
+        }
+        ForEach(majorTicks.identified(by: \.self)) { value in
+          TickMark(angle: self.polarAngle(for: value), style: .major, color: self.tickMarkColor)
+          TickMarkLabel(number: value, angle: self.polarAngle(for: value), color: self.textColor)
         }
 
         // Hand
@@ -63,31 +77,44 @@ struct AnalogDial: View {
   }
 
   struct TickMark: View {
+    enum Style {
+      case major
+      case minor
+    }
+
     var angle: Angle
+    var style: Style
     var color: Color
 
     var body: some View {
       GeometryReader { geometryProxy in
         Rectangle()
-          .scale(x: Self.scaleFactorX, y: Self.scaleFactorY)
+          .scale(x: self.scaleFactorX, y: self.scaleFactorY)
           .rotation(self.angle)
           .offset(self.tickMarkCoordinate(for: geometryProxy.size).cartesian)
           .fill(self.color)
       }
     }
 
-    static let scaleFactorX: CGFloat = 0.06
-    static let scaleFactorY: CGFloat = 0.01
-
     private func tickMarkCoordinate(for viewSize: CGSize) -> Polar {
       let radius = viewSize.width / 2
-      let tickMarkWidth = viewSize.width * Self.scaleFactorX
+      let tickMarkWidth = viewSize.width * scaleFactorX
       let insetRadius = radius - tickMarkWidth / 2
       return Polar(r: insetRadius, phi: angle)
     }
 
-    private func tickMarkSize(for viewSize: CGSize) -> CGSize {
-      return CGSize(width: viewSize.width / 20, height: viewSize.height / 40)
+    private var scaleFactorX: CGFloat {
+      switch style {
+      case .major: return 0.06
+      case .minor: return 0.04
+      }
+    }
+
+    private var scaleFactorY: CGFloat {
+      switch style {
+      case .major: return 0.012
+      case .minor: return 0.007
+      }
     }
   }
 
