@@ -8,9 +8,9 @@ struct State {
 final class Store: BindableObject {
   var state = State() {
     didSet {
-      didChange.send(state)
+      didChange.send()
     }
   }
 
-  let didChange = PassthroughSubject<State, Never>()
+  let didChange = PassthroughSubject<Void, Never>()
 }
