@@ -147,7 +147,7 @@ struct AnalogDial: View {
 
       // Hand
       Hand(angle: angle(for: currentValue))
-        .animation(Animation.fluidSpring())
+        .animation(.fluidSpring())
     }
       .aspectRatio(1, contentMode: .fit)
       .accessibilityElement()
