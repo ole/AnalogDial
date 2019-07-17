@@ -7,10 +7,10 @@ struct State {
 
 final class Store: BindableObject {
   var state = State() {
-    didSet {
-      didChange.send()
+    willSet {
+      willChange.send()
     }
   }
 
-  let didChange = PassthroughSubject<Void, Never>()
+  let willChange = PassthroughSubject<Void, Never>()
 }

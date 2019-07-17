@@ -72,7 +72,7 @@ struct AnalogDial: View {
   @Environment(\.colorScheme) var colorScheme: ColorScheme
 
   init(_ currentValue: Binding<Double>, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
-    self.$currentValue = currentValue
+    self._currentValue = currentValue
     self.minValue = minValue
     self.maxValue = maxValue
     self.majorStep = majorStep
@@ -137,17 +137,17 @@ struct AnalogDial: View {
         .stroke(borderColor)
 
       // Tick marks and labels
-      ForEach(minorTicks.identified(by: \.self)) { value in
+      ForEach(minorTicks, id: \.self) { value in
         TickMark(angle: self.angle(for: value), style: .minor, color: self.tickMarkColor)
       }
-      ForEach(majorTicks.identified(by: \.self)) { value in
+      ForEach(majorTicks, id: \.self) { value in
         TickMark(angle: self.angle(for: value), style: .major, color: self.tickMarkColor)
         TickMarkLabel(number: value, angle: self.angle(for: value), color: self.textColor)
       }
 
       // Hand
       Hand(angle: angle(for: currentValue))
-        .animation(.fluidSpring())
+        .animation(.spring())
     }
       .aspectRatio(1, contentMode: .fit)
       .accessibilityElement()
