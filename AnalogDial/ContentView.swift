@@ -151,6 +151,7 @@ struct AnalogDial: View {
       Hand(angle: angle(for: currentValue))
         .animation(.spring())
     }
+      .drawingGroup()
       .aspectRatio(1, contentMode: .fit)
       .accessibilityElement(children: .ignore)
       .accessibility(addTraits: [.isSummaryElement ,.updatesFrequently])
