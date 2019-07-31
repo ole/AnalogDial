@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ContentView: View {
-  @ObjectBinding var store: Store
+  @ObservedObject var store: Store
   @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass
   @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass
 
@@ -141,8 +141,10 @@ struct AnalogDial: View {
         TickMark(angle: self.angle(for: value), style: .minor, color: self.tickMarkColor)
       }
       ForEach(majorTicks, id: \.self) { value in
-        TickMark(angle: self.angle(for: value), style: .major, color: self.tickMarkColor)
-        TickMarkLabel(number: value, angle: self.angle(for: value), color: self.textColor)
+        Group {
+          TickMark(angle: self.angle(for: value), style: .major, color: self.tickMarkColor)
+          TickMarkLabel(number: value, angle: self.angle(for: value), color: self.textColor)
+        }
       }
 
       // Hand
@@ -150,10 +152,8 @@ struct AnalogDial: View {
         .animation(.spring())
     }
       .aspectRatio(1, contentMode: .fit)
-      .accessibilityElement()
-      .accessibility(visibility: .element)
+      .accessibilityElement(children: .ignore)
       .accessibility(addTraits: [.isSummaryElement ,.updatesFrequently])
-      // TODO: .accessibility(label:) doesn't seem to have any effect in Xcode 11 beta 2
       .accessibility(label: Text("Dial"))
       .accessibility(value: Text("\(currentValue)"))
   }
@@ -277,7 +277,7 @@ extension AnalogDial {
         .applying(translationFromTopLeftToCenter)
     }
 
-    private func labelFontSize(for viewSize: CGSize) -> Length {
+    private func labelFontSize(for viewSize: CGSize) -> CGFloat {
       // TODO: Dynamic font size based on `EnvironmentValues.sizeCategory`.
       return viewSize.width / 14
     }
@@ -344,7 +344,7 @@ func interpolate(_ value: Double, min: Double, max: Double) -> Double {
 /// This is also true here but note that SwiftUI's y axis is flipped (positive values go down), so "north" in SwiftUI's
 /// coordinate system is down. If you need an angle in the upper-right or upper-left quadrant, use a negative angle.
 struct Polar {
-  var r: Length
+  var r: CGFloat
   var phi: Angle
 
   /// Converts a polar coordinate to its corresponding cartesian coordinate (x and y position).
