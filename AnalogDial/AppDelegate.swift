@@ -7,7 +7,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   var timer: Timer? = nil
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-//    store.state.speed = 25
     timer = Timer.scheduledTimer(withTimeInterval: 0.2, repeats: true) { t in
       let speedChange: Double
       switch store.state.speed {
