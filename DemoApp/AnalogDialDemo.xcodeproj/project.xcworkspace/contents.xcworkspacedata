@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:AnalogDial.xcodeproj">
+      location = "self:/Users/elo/code/Libraries/AnalogDial/DemoApp/AnalogDialDemo.xcodeproj">
    </FileRef>
 </Workspace>

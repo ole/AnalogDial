@@ -1,58 +1,5 @@
 import SwiftUI
 
-struct ContentView: View {
-  @ObservedObject var store: Store
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass
-  @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass
-
-  var body: some View {
-    VStack {
-      if horizontalSizeClass == .compact && verticalSizeClass == .compact {
-        AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
-          .accentColor(.red)
-      } else if horizontalSizeClass == .compact && verticalSizeClass == .regular {
-        VStack(spacing: 40) {
-          AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
-            .environment(\.colorScheme, .light)
-            .accentColor(.red)
-          AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
-            .environment(\.colorScheme, .dark)
-            .accentColor(.orange)
-        }
-      } else if horizontalSizeClass == .regular && verticalSizeClass == .compact {
-        HStack(spacing: 40) {
-          AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
-            .environment(\.colorScheme, .light)
-            .accentColor(.red)
-          AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
-            .environment(\.colorScheme, .dark)
-            .accentColor(.orange)
-        }
-      } else if horizontalSizeClass == .regular && verticalSizeClass == .regular {
-        VStack(spacing: 40) {
-          HStack(spacing: 40) {
-            AnalogDial($store.state.speed, maxValue: 60, majorStep: 10)
-              .environment(\.colorScheme, .light)
-              .accentColor(.red)
-            AnalogDial($store.state.speed, maxValue: 40, majorStep: 5, subdivisions: 5)
-              .environment(\.colorScheme, .dark)
-              .accentColor(.orange)
-          }
-          HStack(spacing: 40) {
-            AnalogDial($store.state.speed, maxValue: 60, majorStep: 20, subdivisions: 10, startAngle: .degrees(-45), endAngle: .degrees(45))
-              .environment(\.colorScheme, .dark)
-              .accentColor(.yellow)
-            AnalogDial($store.state.speed, maxValue: 50, majorStep: 10, subdivisions: 10, startAngle: .degrees(-180), endAngle: .degrees(0))
-              .environment(\.colorScheme, .light)
-              .accentColor(.blue)
-          }
-        }
-      }
-    }
-      .padding()
-  }
-}
-
 /// A circular analog dial that can display a numeric value in a specified range (like an analog speedometer)
 ///
 ///          .───────.
@@ -67,11 +14,11 @@ struct ContentView: View {
 ///          `───────'`
 ///
 /// Use the `.accentColor(_:)` modifier to set the color of the dial's hand.
-struct AnalogDial: View {
+public struct Dial: View {
   @Binding var currentValue: Double
   @Environment(\.colorScheme) var colorScheme: ColorScheme
 
-  init(_ currentValue: Binding<Double>, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
+  public init(_ currentValue: Binding<Double>, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
     self._currentValue = currentValue
     self.minValue = minValue
     self.maxValue = maxValue
@@ -92,13 +39,13 @@ struct AnalogDial: View {
   }
 
   /// The minimum value in the dial's range
-  let minValue: Double
+  public let minValue: Double
   /// The maximum value in the dial's range
-  let maxValue: Double
+  public let maxValue: Double
   /// Step size between major tick marks
-  let majorStep: Double
+  public let majorStep: Double
   /// Number of subdivisions (minor ticks) between major tick marks.
-  let subdivisions: Int
+  public let subdivisions: Int
 
   /// The angle where the dial scale should start.
   ///
@@ -115,7 +62,7 @@ struct AnalogDial: View {
   ///   dial would span the full circle.
   ///
   /// - Seealso: `endAngle`
-  let startAngle: Angle
+  public let startAngle: Angle
 
   /// The angle where the dial scale should end.
   ///
@@ -123,12 +70,12 @@ struct AnalogDial: View {
   /// The `endAngle` must be greater than `startAngle`. Use a negative angle to go counterclockwise from east.
   ///
   /// - Seealso: `startAngle`
-  let endAngle: Angle
+  public let endAngle: Angle
 
   private let majorTicks: [Double]
   private let minorTicks: [Double]
 
-  var body: some View {
+  public var body: some View {
     ZStack {
       // Background circle
       Circle()
@@ -151,12 +98,12 @@ struct AnalogDial: View {
       Hand(angle: angle(for: currentValue))
         .animation(.spring())
     }
-      .drawingGroup()
-      .aspectRatio(1, contentMode: .fit)
-      .accessibilityElement(children: .ignore)
-      .accessibility(addTraits: [.isSummaryElement ,.updatesFrequently])
-      .accessibility(label: Text("Dial"))
-      .accessibility(value: Text("\(currentValue)"))
+    .drawingGroup()
+    .aspectRatio(1, contentMode: .fit)
+    .accessibilityElement(children: .ignore)
+    .accessibility(addTraits: [.isSummaryElement ,.updatesFrequently])
+    .accessibility(label: Text("Dial"))
+    .accessibility(value: Text("\(currentValue)"))
   }
 
   /// Returns the angle that corresponds with the given value.
@@ -199,7 +146,7 @@ struct AnalogDial: View {
 }
 
 // MARK: - TickMark
-extension AnalogDial {
+extension Dial {
   struct TickMark: View {
     enum Style {
       case major
@@ -244,7 +191,7 @@ extension AnalogDial {
 }
 
 // MARK: - TickMarkLabel
-extension AnalogDial {
+extension Dial {
   struct TickMarkLabel: View {
     var number: Double
     var angle: Angle
@@ -256,7 +203,7 @@ extension AnalogDial {
           .font(Font.system(size: self.labelFontSize(for: geometryProxy.size), design: .rounded)
             .monospacedDigit()
             .bold()
-          )
+        )
           .foregroundColor(self.color)
           .position(self.labelPosition(for: geometryProxy.size))
       }
@@ -293,7 +240,7 @@ extension AnalogDial {
 }
 
 // MARK: - Hand
-extension AnalogDial {
+extension Dial {
   struct Hand: View {
     var angle: Angle
 
@@ -323,36 +270,8 @@ extension AnalogDial {
 }
 
 // MARK: - Previews
-#if DEBUG
-struct ContentView_Previews : PreviewProvider {
-  static let store = Store()
-
+struct Dial_Previews: PreviewProvider {
   static var previews: some View {
-    ContentView(store: store)
-  }
-}
-#endif
-
-/// Linear interpolation between two values.
-func interpolate(_ value: Double, min: Double, max: Double) -> Double {
-  (value - min) / (max - min)
-}
-
-// MARK: - Geometry helpers
-/// A polar coordinate (angle and radius).
-///
-/// Note: The angle of a polar coordinate (`phi`) goes counterclockwise, i.e. 0º is "east" and 90º is "north".
-/// This is also true here but note that SwiftUI's y axis is flipped (positive values go down), so "north" in SwiftUI's
-/// coordinate system is down. If you need an angle in the upper-right or upper-left quadrant, use a negative angle.
-struct Polar {
-  var r: CGFloat
-  var phi: Angle
-
-  /// Converts a polar coordinate to its corresponding cartesian coordinate (x and y position).
-  var cartesian: CGPoint {
-    // x = r * cos(phi)
-    // y = r * sin(phi)
-    let p = phi.radians
-    return CGPoint(x: r * CGFloat(cos(p)), y: r * CGFloat(sin(p)))
+    Dial(Binding.constant(60))
   }
 }
