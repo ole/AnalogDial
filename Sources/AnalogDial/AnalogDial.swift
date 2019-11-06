@@ -15,11 +15,60 @@ import SwiftUI
 ///
 /// Use the `.accentColor(_:)` modifier to set the color of the dial's hand.
 public struct Dial: View {
-  @Binding var currentValue: Double
-  @Environment(\.colorScheme) var colorScheme: ColorScheme
+  /// The value the dial's hand should display.
+  /// Should be between `minValue` and `maxValue`.
+  public let currentValue: Double
+  /// The minimum value in the dial's range.
+  public let minValue: Double
+  /// The maximum value in the dial's range.
+  public let maxValue: Double
+  /// The step size between major tick marks.
+  public let majorStep: Double
+  /// The number of subdivisions (minor ticks) between major tick marks.
+  public let subdivisions: Int
 
-  public init(_ currentValue: Binding<Double>, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
-    self._currentValue = currentValue
+  /// The angle where the dial scale should start.
+  ///
+  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
+  /// The `startAngle` must be smaller than `endAngle`. Use a negative angle to go counterclockwise from east.
+  /// Examples:
+  /// - 0º is "east" (straight right from the view's center)
+  /// - -90º is straight up from the view's center (I avoid "north" and "south" because it's confusing. SwiftUI's y axis is
+  ///   flipped, so would "north" mean up or down?)
+  /// - -180º is "west" (straight left from the view's center)
+  /// - -225º is the bottom-left "corner" of the dial.
+  /// - 45º is the bottom-right "corner" of the dial.
+  /// - 90º is straight down from the view's center, as is -270º. If you set startAngle to -270º and endAngle to 90º, the
+  ///   dial would span the full circle.
+  ///
+  /// - SeeAlso: `endAngle`
+  public let startAngle: Angle
+
+  /// The angle where the dial scale should end.
+  ///
+  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
+  /// The `endAngle` must be greater than `startAngle`. Use a negative angle to go counterclockwise from east.
+  ///
+  /// - SeeAlso: `startAngle`
+  public let endAngle: Angle
+
+  @Environment(\.colorScheme) private var colorScheme: ColorScheme
+  private let majorTicks: [Double]
+  private let minorTicks: [Double]
+
+  /// Creates an analog dial view.
+  ///
+  /// - Parameters:
+  ///   - currentValue: The value the dial's hand should display. Should be between `minValue`
+  ///     and `maxValue`.
+  ///   - minValue: The minimum value in the dial's range.
+  ///   - maxValue: The maximum value in the dial's range.
+  ///   - majorStep: The step size between major tick marks.
+  ///   - subdivisions: The number of subdivisions (minor ticks) between major tick marks.
+  ///   - startAngle: The angle where the dial scale should start.
+  ///   - endAngle: The angle where the dial scale should end.
+  public init(currentValue: Double, minValue: Double = 0, maxValue: Double = 100, majorStep: Double = 20, subdivisions: Int = 4, startAngle: Angle = .degrees(-225), endAngle: Angle = .degrees(45)) {
+    self.currentValue = currentValue
     self.minValue = minValue
     self.maxValue = maxValue
     self.majorStep = majorStep
@@ -37,43 +86,6 @@ public struct Dial: View {
     self.majorTicks = majorTicks
     self.minorTicks = minorTicks
   }
-
-  /// The minimum value in the dial's range
-  public let minValue: Double
-  /// The maximum value in the dial's range
-  public let maxValue: Double
-  /// Step size between major tick marks
-  public let majorStep: Double
-  /// Number of subdivisions (minor ticks) between major tick marks.
-  public let subdivisions: Int
-
-  /// The angle where the dial scale should start.
-  ///
-  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
-  /// The `startAngle` must be smaller than `endAngle`. Use a negative angle to go counterclockwise from east.
-  /// Examples:
-  /// - 0º is "east" (straight right from the view's center)
-  /// - -90º is straight up from the view's center (I avoid "north" and "south" because it's confusing. SwiftUI's y axis is
-  ///   flipped, so would "north" mean up or down?)
-  /// - -180º is "west" (straight left from the view's center)
-  /// - -225º is the bottom-left "corner" of the dial.
-  /// - 45º is the bottom-right "corner" of the dial.
-  /// - 90º is straight down from the view's center, as is -270º. If you set startAngle to -270º and endAngle to 90º, the
-  ///   dial would span the full circle.
-  ///
-  /// - Seealso: `endAngle`
-  public let startAngle: Angle
-
-  /// The angle where the dial scale should end.
-  ///
-  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
-  /// The `endAngle` must be greater than `startAngle`. Use a negative angle to go counterclockwise from east.
-  ///
-  /// - Seealso: `startAngle`
-  public let endAngle: Angle
-
-  private let majorTicks: [Double]
-  private let minorTicks: [Double]
 
   public var body: some View {
     ZStack {
@@ -272,6 +284,7 @@ extension Dial {
 // MARK: - Previews
 struct Dial_Previews: PreviewProvider {
   static var previews: some View {
-    Dial(Binding.constant(60))
+    Dial(currentValue: 20, maxValue: 60, majorStep: 10)
+      .accentColor(.red)
   }
 }
