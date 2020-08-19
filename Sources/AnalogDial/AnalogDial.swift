@@ -29,16 +29,16 @@ public struct Dial: View {
 
   /// The angle where the dial scale should start.
   ///
-  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
+  /// Measured in SwiftUI's default coordinate system, i.e. 0° is "east" (positive x axis) and positive angles go clockwise.
   /// The `startAngle` must be smaller than `endAngle`. Use a negative angle to go counterclockwise from east.
   /// Examples:
-  /// - 0º is "east" (straight right from the view's center)
-  /// - -90º is straight up from the view's center (I avoid "north" and "south" because it's confusing. SwiftUI's y axis is
+  /// - 0° is "east" (straight right from the view's center)
+  /// - -90° is straight up from the view's center (I avoid "north" and "south" because it's confusing. SwiftUI's y axis is
   ///   flipped, so would "north" mean up or down?)
-  /// - -180º is "west" (straight left from the view's center)
-  /// - -225º is the bottom-left "corner" of the dial.
-  /// - 45º is the bottom-right "corner" of the dial.
-  /// - 90º is straight down from the view's center, as is -270º. If you set startAngle to -270º and endAngle to 90º, the
+  /// - -180° is "west" (straight left from the view's center)
+  /// - -225° is the bottom-left "corner" of the dial.
+  /// - 45° is the bottom-right "corner" of the dial.
+  /// - 90° is straight down from the view's center, as is -270°. If you set startAngle to -270° and endAngle to 90°, the
   ///   dial would span the full circle.
   ///
   /// - SeeAlso: `endAngle`
@@ -46,7 +46,7 @@ public struct Dial: View {
 
   /// The angle where the dial scale should end.
   ///
-  /// Measured in SwiftUI's default coordinate system, i.e. 0º is "east" (positive x axis) and positive angles go clockwise.
+  /// Measured in SwiftUI's default coordinate system, i.e. 0° is "east" (positive x axis) and positive angles go clockwise.
   /// The `endAngle` must be greater than `startAngle`. Use a negative angle to go counterclockwise from east.
   ///
   /// - SeeAlso: `startAngle`
