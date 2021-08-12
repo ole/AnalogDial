@@ -8,10 +8,8 @@ struct ContentView: View {
 
   var body: some View {
     VStack {
-      if horizontalSizeClass == .compact && verticalSizeClass == .compact {
-        Dial(currentValue: store.state.speed, maxValue: 60, majorStep: 10)
-          .accentColor(.red)
-      } else if horizontalSizeClass == .compact && verticalSizeClass == .regular {
+      switch (horizontalSizeClass, verticalSizeClass) {
+      case (.compact, .regular):
         VStack(spacing: 40) {
           Dial(currentValue: store.state.speed, maxValue: 60, majorStep: 10)
             .environment(\.colorScheme, .light)
@@ -20,7 +18,8 @@ struct ContentView: View {
             .environment(\.colorScheme, .dark)
             .accentColor(.orange)
         }
-      } else if horizontalSizeClass == .regular && verticalSizeClass == .compact {
+
+      case (.regular, .compact):
         HStack(spacing: 40) {
           Dial(currentValue: store.state.speed, maxValue: 60, majorStep: 10)
             .environment(\.colorScheme, .light)
@@ -29,7 +28,8 @@ struct ContentView: View {
             .environment(\.colorScheme, .dark)
             .accentColor(.orange)
         }
-      } else if horizontalSizeClass == .regular && verticalSizeClass == .regular {
+
+      case (.regular, .regular):
         VStack(spacing: 40) {
           HStack(spacing: 40) {
             Dial(currentValue: store.state.speed, maxValue: 60, majorStep: 10)
@@ -48,6 +48,10 @@ struct ContentView: View {
               .accentColor(.blue)
           }
         }
+
+      case (.compact?, .compact?), (_, _):
+        Dial(currentValue: store.state.speed, maxValue: 60, majorStep: 10)
+          .accentColor(.red)
       }
     }
       .padding()
