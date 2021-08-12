@@ -3,8 +3,8 @@ import SwiftUI
 
 struct ContentView: View {
   @ObservedObject var store: Store
-  @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass
-  @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass: UserInterfaceSizeClass?
+  @Environment(\.verticalSizeClass) var verticalSizeClass: UserInterfaceSizeClass?
 
   var body: some View {
     VStack {
